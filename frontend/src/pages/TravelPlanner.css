@@ -1,0 +1,194 @@
+.travel-planner {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.planner-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.planner-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.planner-header p {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.planner-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #667eea;
+}
+
+.planner-form button {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.planner-form button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.planner-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.itinerary-result {
+  animation: fadeIn 0.5s;
+}
+
+.itinerary-result h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.day-plan {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.day-plan h3 {
+  color: #667eea;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.day-places {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.itinerary-place {
+  display: flex;
+  gap: 1.5rem;
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.itinerary-place img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.place-info h4 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.place-info p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.place-category {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dark-mode .planner-header h1,
+.dark-mode .itinerary-result h2 {
+  color: #e2e8f0;
+}
+
+.dark-mode .planner-header p {
+  color: #cbd5e0;
+}
+
+.dark-mode .planner-form,
+.dark-mode .day-plan {
+  background: #2d3748;
+}
+
+.dark-mode .form-group label,
+.dark-mode .place-info h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .form-group input {
+  background: #1a202c;
+  color: #e2e8f0;
+  border-color: #4a5568;
+}
+
+.dark-mode .itinerary-place {
+  background: #1a202c;
+}
+
+.dark-mode .place-info p {
+  color: #cbd5e0;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "smart-tourist-guide",
+  "version": "1.0.0",
+  "description": "Smart Tourist Guide & Travel Recommendation System",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "keywords": ["tourism", "travel", "recommendation", "react", "nodejs", "mysql"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}

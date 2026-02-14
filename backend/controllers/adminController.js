@@ -94,8 +94,17 @@ exports.getAllUsers = async (req, res) => {
     const [users] = await db.query(query, params);
     
     const [total] = await db.query('SELECT COUNT(*) as count FROM users');
+    const [activeNow] = await db.query(
+      'SELECT COUNT(DISTINCT userId) as count FROM reviews WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)'
+    );
     
-    res.json({ users, total: total[0].count, page: parseInt(page), totalPages: Math.ceil(total[0].count / limit) });
+    res.json({ 
+      users, 
+      total: total[0].count, 
+      activeNow: activeNow[0].count,
+      page: parseInt(page), 
+      totalPages: Math.ceil(total[0].count / limit) 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

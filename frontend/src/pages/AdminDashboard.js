@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI, placesAPI } from '../services/api';
-import { FaHome, FaMapMarkedAlt, FaUsers, FaChartBar, FaPlus, FaBars, FaTimes, FaSignOutAlt, FaUser, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import { FaHome, FaMapMarkedAlt, FaUsers, FaPlus, FaBars, FaTimes, FaSignOutAlt, FaUser, FaEdit, FaTrash, FaSearch, FaBell, FaChartLine } from 'react-icons/fa';
+import io from 'socket.io-client';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -14,6 +15,21 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [searchUser, setSearchUser] = useState('');
   const [searchPlace, setSearchPlace] = useState('');
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const socket = io('http://localhost:5000');
+    
+    socket.on('newUser', (data) => {
+      setNotifications(prev => [{ type: 'user', message: `New user: ${data.name}`, time: new Date() }, ...prev].slice(0, 10));
+    });
+
+    socket.on('newPlace', (data) => {
+      setNotifications(prev => [{ type: 'place', message: `New place: ${data.name}`, time: new Date() }, ...prev].slice(0, 10));
+    });
+
+    return () => socket.disconnect();
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'overview') fetchStats();
@@ -45,7 +61,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const response = await adminAPI.getUsers(searchUser);
-      setUsers(response.data);
+      setUsers(response.data.users || response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -150,7 +166,13 @@ const AdminDashboard = () => {
           <>
             {activeTab === 'overview' && stats && (
               <div className="overview-section">
-                <h1>Dashboard Overview</h1>
+                <div className="dashboard-header">
+                  <h1>Dashboard Overview</h1>
+                  <div className="notification-bell">
+                    <FaBell />
+                    {notifications.length > 0 && <span className="badge">{notifications.length}</span>}
+                  </div>
+                </div>
                 <div className="stats-grid">
                   <div className="stat-card">
                     <h3>Total Users</h3>
@@ -169,6 +191,11 @@ const AdminDashboard = () => {
                     <p className="stat-name">{stats.mostPopular?.name || 'N/A'}</p>
                     <small>Rating: {stats.mostPopular?.rating || 0}</small>
                   </div>
+                  <div className="stat-card">
+                    <h3>Active Users</h3>
+                    <p className="stat-number">{stats.activeToday || 0}</p>
+                    <small>Today</small>
+                  </div>
                 </div>
                 <div className="quick-actions">
                   <button onClick={() => navigate('/admin')} className="action-btn">
@@ -180,6 +207,21 @@ const AdminDashboard = () => {
                   <button onClick={() => setActiveTab('users')} className="action-btn">
                     <FaUsers /> View All Users
                   </button>
+                </div>
+                <div className="recent-activity">
+                  <h2><FaChartLine /> Recent Activity</h2>
+                  <div className="activity-list">
+                    {notifications.slice(0, 5).map((notif, i) => (
+                      <div key={i} className="activity-item">
+                        <span className={`activity-dot ${notif.type}`}></span>
+                        <div className="activity-content">
+                          <p>{notif.message}</p>
+                          <small>{new Date(notif.time).toLocaleTimeString()}</small>
+                        </div>
+                      </div>
+                    ))}
+                    {notifications.length === 0 && <p className="no-activity">No recent activity</p>}
+                  </div>
                 </div>
               </div>
             )}

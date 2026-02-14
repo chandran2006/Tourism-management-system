@@ -29,7 +29,6 @@ const Navbar = () => {
           <li><Link to="/timeline">Timeline</Link></li>
           {user && <li><Link to="/favorites">{t('favorites')}</Link></li>}
           {user?.role === 'admin' && <li><Link to="/admin-dashboard">Dashboard</Link></li>}
-          {user?.role === 'admin' && <li><Link to="/admin">{t('admin')}</Link></li>}
         </ul>
 
         <div className="nav-actions">

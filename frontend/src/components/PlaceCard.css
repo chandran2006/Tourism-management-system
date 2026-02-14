@@ -18,12 +18,6 @@
   overflow: hidden;
 }
 
-.place-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .place-category {
   position: absolute;
   top: 10px;

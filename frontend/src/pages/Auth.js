@@ -36,7 +36,13 @@ const Auth = () => {
         : await authAPI.register(formData);
       
       login(response.data.user, response.data.token);
-      navigate('/');
+      
+      // Redirect based on user role
+      if (response.data.user.role === 'admin' || response.data.user.role === 'super_admin') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       alert(error.response?.data?.message || 'Authentication failed');
     }
@@ -105,6 +111,10 @@ const Auth = () => {
             {isLogin ? 'Register' : 'Login'}
           </span>
         </p>
+
+        <div className="admin-link">
+          <a href="/admin-register">Register as Admin</a>
+        </div>
       </div>
     </div>
   );

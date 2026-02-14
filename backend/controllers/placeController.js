@@ -42,7 +42,14 @@ exports.getPlaceById = async (req, res) => {
       [req.params.id]
     );
 
-    res.json({ ...places[0], reviews });
+    // Get suggested next destination
+    let nextPlace = null;
+    if (places[0].nextSuggestion) {
+      const [next] = await db.query('SELECT id, name, imageUrl, category, location FROM tourist_places WHERE id = ?', [places[0].nextSuggestion]);
+      nextPlace = next[0] || null;
+    }
+
+    res.json({ ...places[0], reviews, nextPlace });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -85,11 +92,11 @@ exports.getRecommendations = async (req, res) => {
 
 exports.createPlace = async (req, res) => {
   try {
-    const { name, description, category, location, imageUrl, latitude, longitude } = req.body;
+    const { name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion } = req.body;
 
     const [result] = await db.query(
-      'INSERT INTO tourist_places (name, description, category, location, imageUrl, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, description, category, location, imageUrl, latitude, longitude]
+      'INSERT INTO tourist_places (name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion]
     );
 
     res.status(201).json({ message: 'Place created successfully', id: result.insertId });
@@ -100,11 +107,11 @@ exports.createPlace = async (req, res) => {
 
 exports.updatePlace = async (req, res) => {
   try {
-    const { name, description, category, location, imageUrl, latitude, longitude } = req.body;
+    const { name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion } = req.body;
 
     await db.query(
-      'UPDATE tourist_places SET name = ?, description = ?, category = ?, location = ?, imageUrl = ?, latitude = ?, longitude = ? WHERE id = ?',
-      [name, description, category, location, imageUrl, latitude, longitude, req.params.id]
+      'UPDATE tourist_places SET name = ?, description = ?, category = ?, location = ?, imageUrl = ?, latitude = ?, longitude = ?, bestTime = ?, visitDuration = ?, crowdLevel = ?, travelTips = ?, nearbyFood = ?, nextSuggestion = ? WHERE id = ?',
+      [name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion, req.params.id]
     );
 
     res.json({ message: 'Place updated successfully' });
@@ -142,6 +149,50 @@ exports.generateItinerary = async (req, res) => {
     }
 
     res.json({ city, duration, itinerary });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.generateTimeline = async (req, res) => {
+  try {
+    const { city, duration } = req.body;
+    
+    const [places] = await db.query(
+      'SELECT * FROM tourist_places WHERE location LIKE ? ORDER BY rating DESC LIMIT ?',
+      [`%${city}%`, parseInt(duration) * 4]
+    );
+
+    if (places.length === 0) {
+      return res.json({ city, duration, timeline: [] });
+    }
+
+    const timeline = [];
+    const timeSlots = duration === '1' 
+      ? ['09:00 AM', '12:00 PM', '03:00 PM', '06:00 PM']
+      : ['09:00 AM', '11:30 AM', '02:00 PM', '05:00 PM', '09:00 AM', '12:00 PM', '03:00 PM', '06:00 PM'];
+    
+    const dayLabels = duration === '1' ? ['Day 1'] : ['Day 1', 'Day 1', 'Day 1', 'Day 1', 'Day 2', 'Day 2', 'Day 2', 'Day 2'];
+
+    places.forEach((place, index) => {
+      if (index < timeSlots.length) {
+        timeline.push({
+          time: timeSlots[index],
+          day: dayLabels[index],
+          place: {
+            id: place.id,
+            name: place.name,
+            description: place.description,
+            imageUrl: place.imageUrl,
+            category: place.category,
+            visitDuration: place.visitDuration || '2 hours',
+            travelTips: place.travelTips
+          }
+        });
+      }
+    });
+
+    res.json({ city, duration, timeline });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

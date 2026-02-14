@@ -11,5 +11,6 @@ router.post('/', authMiddleware, adminMiddleware, placeController.createPlace);
 router.put('/:id', authMiddleware, adminMiddleware, placeController.updatePlace);
 router.delete('/:id', authMiddleware, adminMiddleware, placeController.deletePlace);
 router.post('/itinerary', placeController.generateItinerary);
+router.post('/timeline', placeController.generateTimeline);
 
 module.exports = router;

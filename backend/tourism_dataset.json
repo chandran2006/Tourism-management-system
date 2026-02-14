@@ -1,0 +1,241 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "totalStates": 36,
+    "totalDestinations": 500,
+    "lastUpdated": "2024",
+    "source": "Smart Tourist Guide System"
+  },
+  "states": {
+    "Rajasthan": {
+      "capital": "Jaipur",
+      "touristCities": ["Jaipur", "Udaipur", "Jodhpur", "Jaisalmer", "Pushkar", "Mount Abu"],
+      "destinations": [
+        {
+          "id": 1,
+          "name": "Amber Fort",
+          "city": "Jaipur",
+          "state": "Rajasthan",
+          "category": "Heritage",
+          "shortDescription": "Majestic hilltop fort with stunning Rajput-Mughal architecture",
+          "detailedDescription": "Amber Fort, built in 1592 by Raja Man Singh I, is a UNESCO World Heritage site showcasing perfect blend of Hindu and Mughal architecture with artistic gates, ramparts and cobbled paths.",
+          "location": {
+            "address": "Devisinghpura, Amer, Jaipur, Rajasthan 302001",
+            "latitude": 26.9855,
+            "longitude": 75.8513,
+            "googleMapsLink": "https://maps.google.com/?q=26.9855,75.8513"
+          },
+          "history": {
+            "background": "Built by Raja Man Singh I in 1592, served as main residence of Rajput Maharajas",
+            "culturalImportance": "Symbol of Rajput valor and architectural brilliance",
+            "architecturalStyle": "Rajput-Mughal fusion",
+            "unescoStatus": true
+          },
+          "visitorInfo": {
+            "openingHours": "8:00 AM - 5:30 PM",
+            "entryFee": {"indian": 100, "foreigner": 500},
+            "bestTime": "Morning (8-11 AM) or Evening (4-6 PM)",
+            "bestSeason": "October to March",
+            "duration": "2-3 hours",
+            "crowdLevel": "High"
+          },
+          "travel": {
+            "nearestAirport": "Jaipur International Airport (25 km)",
+            "nearestRailway": "Jaipur Junction (11 km)",
+            "distanceFromCity": "11 km",
+            "transportOptions": ["Taxi", "Auto-rickshaw", "Bus", "Elephant ride"]
+          },
+          "facilities": {
+            "guides": true,
+            "parking": true,
+            "foodNearby": ["LMB", "Peacock Rooftop", "1135 AD"],
+            "accessibility": "Wheelchair accessible with assistance"
+          },
+          "nearby": ["Jaigarh Fort", "Jal Mahal", "City Palace", "Hawa Mahal", "Nahargarh Fort"],
+          "tips": {
+            "dressCode": "Modest clothing recommended",
+            "safety": "Beware of monkeys. Stay hydrated.",
+            "photography": "Allowed. Extra charges for professional cameras",
+            "general": "Book online to avoid queues. Visit early morning. Evening sound & light show spectacular."
+          },
+          "budget": {
+            "visitCost": 500,
+            "food": 300,
+            "transport": 200
+          },
+          "weather": {"avgTemperature": "15-35°C"},
+          "metrics": {
+            "rating": 4.7,
+            "popularityScore": 95,
+            "trending": true
+          },
+          "images": {
+            "thumbnail": "https://images.unsplash.com/photo-1599661046289-e31897846e41",
+            "main": "https://images.unsplash.com/photo-1599661046289-e31897846e41",
+            "gallery": [
+              "https://images.unsplash.com/photo-1599661046289-e31897846e41",
+              "https://images.unsplash.com/photo-1609920658906-8223bd289001"
+            ]
+          }
+        }
+      ]
+    },
+    "Kerala": {
+      "capital": "Thiruvananthapuram",
+      "touristCities": ["Kochi", "Munnar", "Alleppey", "Kovalam", "Wayanad", "Thekkady"],
+      "destinations": [
+        {
+          "id": 50,
+          "name": "Kerala Backwaters",
+          "city": "Alleppey",
+          "state": "Kerala",
+          "category": "Nature",
+          "shortDescription": "Serene network of lagoons, lakes and canals",
+          "detailedDescription": "Kerala Backwaters are a chain of brackish lagoons and lakes lying parallel to the Arabian Sea coast. Famous for houseboat cruises through palm-fringed waterways.",
+          "location": {
+            "address": "Alleppey, Kerala 688001",
+            "latitude": 9.4981,
+            "longitude": 76.3388,
+            "googleMapsLink": "https://maps.google.com/?q=9.4981,76.3388"
+          },
+          "history": {
+            "background": "Ancient water transport system dating back centuries",
+            "culturalImportance": "Integral to Kerala's culture and economy",
+            "architecturalStyle": "Natural waterways",
+            "unescoStatus": false
+          },
+          "visitorInfo": {
+            "openingHours": "24/7 (Houseboat timings vary)",
+            "entryFee": {"indian": 0, "foreigner": 0},
+            "bestTime": "Early morning or sunset",
+            "bestSeason": "September to March",
+            "duration": "1-2 days",
+            "crowdLevel": "Low"
+          },
+          "travel": {
+            "nearestAirport": "Cochin International Airport (85 km)",
+            "nearestRailway": "Alappuzha Railway Station (3 km)",
+            "distanceFromCity": "0 km",
+            "transportOptions": ["Houseboat", "Shikara", "Ferry", "Taxi"]
+          },
+          "facilities": {
+            "guides": true,
+            "parking": true,
+            "foodNearby": ["Thaff Restaurant", "Coconut Lagoon", "Lime Tree"],
+            "accessibility": "Limited wheelchair access on houseboats"
+          },
+          "nearby": ["Kumarakom", "Marari Beach", "Pathiramanal Island"],
+          "tips": {
+            "dressCode": "Casual comfortable clothing",
+            "safety": "Life jackets provided. Follow boat safety rules.",
+            "photography": "Excellent opportunities. Respect local privacy.",
+            "general": "Book houseboat in advance. Try Kerala cuisine. Overnight stay recommended."
+          },
+          "budget": {
+            "visitCost": 5000,
+            "food": 1000,
+            "transport": 500
+          },
+          "weather": {"avgTemperature": "25-32°C"},
+          "metrics": {
+            "rating": 4.8,
+            "popularityScore": 93,
+            "trending": true
+          },
+          "images": {
+            "thumbnail": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944",
+            "main": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944",
+            "gallery": [
+              "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944"
+            ]
+          }
+        }
+      ]
+    },
+    "Goa": {
+      "capital": "Panaji",
+      "touristCities": ["Panaji", "Margao", "Vasco da Gama", "Mapusa"],
+      "destinations": [
+        {
+          "id": 100,
+          "name": "Baga Beach",
+          "city": "North Goa",
+          "state": "Goa",
+          "category": "Beach",
+          "shortDescription": "Popular beach with water sports and vibrant nightlife",
+          "detailedDescription": "Baga Beach is one of the most popular beaches in North Goa, known for its golden sands, water sports, beach shacks, and lively atmosphere. Perfect for both relaxation and adventure.",
+          "location": {
+            "address": "Baga, Goa 403516",
+            "latitude": 15.5559,
+            "longitude": 73.7516,
+            "googleMapsLink": "https://maps.google.com/?q=15.5559,73.7516"
+          },
+          "history": {
+            "background": "Named after Baga Creek which flows into the Arabian Sea",
+            "culturalImportance": "Hub of Goan beach culture and tourism",
+            "architecturalStyle": "Natural beach",
+            "unescoStatus": false
+          },
+          "visitorInfo": {
+            "openingHours": "24/7 (Water sports 9 AM - 5 PM)",
+            "entryFee": {"indian": 0, "foreigner": 0},
+            "bestTime": "Early morning or evening",
+            "bestSeason": "November to February",
+            "duration": "Half day to full day",
+            "crowdLevel": "High"
+          },
+          "travel": {
+            "nearestAirport": "Goa International Airport (45 km)",
+            "nearestRailway": "Thivim Railway Station (18 km)",
+            "distanceFromCity": "16 km from Panaji",
+            "transportOptions": ["Taxi", "Bike rental", "Bus"]
+          },
+          "facilities": {
+            "guides": false,
+            "parking": true,
+            "foodNearby": ["Britto's", "Tito's", "St. Anthony's"],
+            "accessibility": "Beach wheelchairs available"
+          },
+          "nearby": ["Calangute Beach", "Anjuna Beach", "Fort Aguada"],
+          "tips": {
+            "dressCode": "Beach wear acceptable",
+            "safety": "Swim in designated areas. Beware of strong currents.",
+            "photography": "Allowed everywhere",
+            "general": "Try water sports. Visit beach shacks for seafood. Rent scooter for mobility."
+          },
+          "budget": {
+            "visitCost": 1000,
+            "food": 800,
+            "transport": 500
+          },
+          "weather": {"avgTemperature": "25-32°C"},
+          "metrics": {
+            "rating": 4.5,
+            "popularityScore": 88,
+            "trending": true
+          },
+          "images": {
+            "thumbnail": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2",
+            "main": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2",
+            "gallery": [
+              "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "categories": {
+    "Temple": ["Golden Temple", "Meenakshi Temple", "Tirupati", "Varanasi Ghats"],
+    "Heritage": ["Taj Mahal", "Amber Fort", "City Palace", "Mysore Palace"],
+    "Beach": ["Goa Beaches", "Andaman Islands", "Kovalam", "Puri"],
+    "Nature": ["Kerala Backwaters", "Valley of Flowers", "Coorg", "Munnar"],
+    "Adventure": ["Manali", "Rishikesh", "Ladakh", "Spiti Valley"],
+    "Wildlife": ["Jim Corbett", "Ranthambore", "Kaziranga", "Bandipur"]
+  },
+  "pagination": {
+    "recommendedPageSize": 20,
+    "totalPages": 25,
+    "indexFields": ["state", "city", "category", "rating", "popularityScore"]
+  }
+}

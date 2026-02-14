@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaSun, FaMoon, FaUser, FaHeart, FaMapMarkedAlt, FaSignOutAlt } from 'react-icons/fa';
+import { useLanguage } from '../context/LanguageContext';
+import { FaSun, FaMoon, FaUser, FaHeart, FaMapMarkedAlt, FaSignOutAlt, FaLanguage } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout, darkMode, toggleDarkMode } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -21,27 +23,34 @@ const Navbar = () => {
         </Link>
         
         <ul className="nav-menu">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/explore">Explore</Link></li>
-          <li><Link to="/planner">Travel Planner</Link></li>
-          {user && <li><Link to="/favorites">Favorites</Link></li>}
-          {user?.role === 'admin' && <li><Link to="/admin">Admin</Link></li>}
+          <li><Link to="/">{t('home')}</Link></li>
+          <li><Link to="/explore">{t('explore')}</Link></li>
+          <li><Link to="/planner">{t('planner')}</Link></li>
+          <li><Link to="/timeline">Timeline</Link></li>
+          {user && <li><Link to="/favorites">{t('favorites')}</Link></li>}
+          {user?.role === 'admin' && <li><Link to="/admin-dashboard">Dashboard</Link></li>}
+          {user?.role === 'admin' && <li><Link to="/admin">{t('admin')}</Link></li>}
         </ul>
 
         <div className="nav-actions">
+          <button onClick={toggleLanguage} className="icon-btn" title="Language">
+            <FaLanguage /> {language.toUpperCase()}
+          </button>
           <button onClick={toggleDarkMode} className="icon-btn">
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
           
           {user ? (
             <>
-              <span className="user-name"><FaUser /> {user.name}</span>
+              <span className="user-name" onClick={() => navigate('/profile')} style={{cursor: 'pointer'}}>
+                <FaUser /> {user.name}
+              </span>
               <button onClick={handleLogout} className="btn-logout">
-                <FaSignOutAlt /> Logout
+                <FaSignOutAlt /> {t('logout')}
               </button>
             </>
           ) : (
-            <Link to="/login" className="btn-login">Login</Link>
+            <Link to="/login" className="btn-login">{t('login')}</Link>
           )}
         </div>
       </div>

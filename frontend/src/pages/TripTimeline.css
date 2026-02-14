@@ -1,0 +1,260 @@
+.trip-timeline-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.timeline-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.timeline-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.timeline-form {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 15px;
+}
+
+.form-row input,
+.form-row select,
+.form-row button {
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.form-row button {
+  background: #667eea;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.form-row button:hover {
+  background: #5568d3;
+}
+
+.form-row button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.timeline-result h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: var(--text-color);
+}
+
+.timeline-container {
+  position: relative;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.timeline-marker {
+  position: relative;
+  margin-right: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marker-dot {
+  width: 20px;
+  height: 20px;
+  background: #667eea;
+  border-radius: 50%;
+  border: 4px solid var(--bg-color);
+  box-shadow: 0 0 0 4px #667eea33;
+  z-index: 2;
+}
+
+.marker-line {
+  width: 3px;
+  flex: 1;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  margin-top: 10px;
+  min-height: 100px;
+}
+
+.timeline-content {
+  flex: 1;
+}
+
+.timeline-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+.day-badge {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.timeline-card {
+  background: var(--card-bg);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.timeline-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.timeline-image {
+  width: 100%;
+  height: 200px;
+}
+
+.timeline-info {
+  padding: 20px;
+}
+
+.timeline-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.timeline-category {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.timeline-description {
+  color: #7f8c8d;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.timeline-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  color: #95a5a6;
+  font-size: 0.95rem;
+}
+
+.timeline-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.timeline-tips {
+  background: #fff3cd;
+  color: #856404;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.timeline-activity,
+.timeline-meal,
+.timeline-hotel {
+  background: #e8f5e9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.timeline-meal {
+  background: #fff3e0;
+}
+
+.timeline-hotel {
+  background: #e3f2fd;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .timeline-marker {
+    margin-right: 15px;
+  }
+  
+  .marker-dot {
+    width: 15px;
+    height: 15px;
+  }
+  
+  .timeline-image {
+    height: 150px;
+  }
+}
+
+.dark-mode .timeline-tips {
+  background: #2d3748;
+  color: #ffc107;
+}
+
+.dark-mode .timeline-activity {
+  background: #1e4620;
+  color: #a5d6a7;
+}
+
+.dark-mode .timeline-meal {
+  background: #4a3800;
+  color: #ffe082;
+}
+
+.dark-mode .timeline-hotel {
+  background: #0d3c61;
+  color: #90caf9;
+}

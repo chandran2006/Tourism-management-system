@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaStar, FaMapMarkerAlt, FaHeart } from 'react-icons/fa';
+import OptimizedImage from './OptimizedImage';
 import './PlaceCard.css';
 
 const PlaceCard = ({ place, onFavorite, isFavorite }) => {
@@ -9,7 +10,12 @@ const PlaceCard = ({ place, onFavorite, isFavorite }) => {
   return (
     <div className="place-card" onClick={() => navigate(`/place/${place.id}`)}>
       <div className="place-image">
-        <img src={place.imageUrl} alt={place.name} />
+        <OptimizedImage 
+          src={place.imageUrl} 
+          alt={place.name}
+          width="100%"
+          height="200px"
+        />
         <span className="place-category">{place.category}</span>
         {onFavorite && (
           <button 

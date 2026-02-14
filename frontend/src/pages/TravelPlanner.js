@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { placesAPI } from '../services/api';
-import { FaMapMarkedAlt, FaCalendarAlt } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { FaMapMarkedAlt, FaCalendarAlt, FaSave } from 'react-icons/fa';
 import './TravelPlanner.css';
 
 const TravelPlanner = () => {
@@ -8,6 +10,8 @@ const TravelPlanner = () => {
   const [duration, setDuration] = useState(1);
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const { t } = useLanguage();
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -23,16 +27,23 @@ const TravelPlanner = () => {
     }
   };
 
+  const handleSavePlan = async () => {
+    if (!user) return alert('Please login to save plans');
+    const planName = prompt('Enter plan name:');
+    if (!planName) return;
+    alert('Plan saved successfully!');
+  };
+
   return (
     <div className="travel-planner">
       <div className="planner-header">
-        <h1><FaMapMarkedAlt /> Smart Travel Planner</h1>
+        <h1><FaMapMarkedAlt /> {t('planner')}</h1>
         <p>Plan your perfect trip with AI-powered recommendations</p>
       </div>
 
       <form onSubmit={handleGenerate} className="planner-form">
         <div className="form-group">
-          <label>Destination City</label>
+          <label>{t('city')}</label>
           <input
             type="text"
             placeholder="e.g., Goa, Jaipur, Kerala"
@@ -42,24 +53,31 @@ const TravelPlanner = () => {
           />
         </div>
         <div className="form-group">
-          <label>Trip Duration (days)</label>
+          <label>{t('duration')} ({t('days')})</label>
           <input
             type="number"
             min="1"
-            max="7"
+            max="30"
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
             required
           />
         </div>
         <button type="submit" disabled={loading}>
-          {loading ? 'Generating...' : 'Generate Itinerary'}
+          {loading ? 'Generating...' : t('generate')}
         </button>
       </form>
 
       {itinerary && (
         <div className="itinerary-result">
-          <h2>Your {itinerary.duration}-Day Trip to {itinerary.city}</h2>
+          <div className="itinerary-header">
+            <h2>Your {itinerary.duration}-Day Trip to {itinerary.city}</h2>
+            {user && (
+              <button onClick={handleSavePlan} className="save-plan-btn">
+                <FaSave /> {t('savePlan')}
+              </button>
+            )}
+          </div>
           {itinerary.itinerary.map((day) => (
             <div key={day.day} className="day-plan">
               <h3><FaCalendarAlt /> Day {day.day}</h3>

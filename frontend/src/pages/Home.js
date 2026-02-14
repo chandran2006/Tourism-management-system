@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { placesAPI } from '../services/api';
+import HeroSlider from '../components/HeroSlider';
 import PlaceCard from '../components/PlaceCard';
-import { FaSearch, FaMountain, FaUmbrellaBeach, FaUtensils, FaLandmark, FaTree, FaHiking } from 'react-icons/fa';
+import { FaMountain, FaUmbrellaBeach, FaUtensils, FaLandmark, FaTree, FaHiking } from 'react-icons/fa';
 import './Home.css';
 
 const categories = [
@@ -16,48 +17,53 @@ const categories = [
 
 const Home = () => {
   const [places, setPlaces] = useState([]);
-  const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchPlaces();
+    
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
   }, []);
 
   const fetchPlaces = async () => {
     try {
-      const response = await placesAPI.getAll({ limit: 8 });
-      setPlaces(response.data.slice(0, 8));
+      const response = await placesAPI.getAll();
+      console.log('Places response:', response.data);
+      if (Array.isArray(response.data)) {
+        setPlaces(response.data.slice(0, 12));
+      } else {
+        setPlaces([]);
+      }
     } catch (error) {
       console.error('Error fetching places:', error);
+      setPlaces([]);
     }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    navigate(`/explore?search=${search}`);
   };
 
   return (
     <div className="home">
-      <section className="hero">
-        <div className="hero-content">
-          <h1>Discover Your Next Adventure</h1>
-          <p>Explore amazing tourist destinations with smart recommendations</p>
-          <form onSubmit={handleSearch} className="search-bar">
-            <FaSearch />
-            <input
-              type="text"
-              placeholder="Search destinations, cities, or attractions..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button type="submit">Search</button>
-          </form>
-        </div>
-      </section>
+      <HeroSlider />
 
-      <section className="categories">
-        <h2>Explore by Category</h2>
+      <section className="categories scroll-animate">
+        <div className="section-header">
+          <h2>Explore by Category</h2>
+          <p>Choose your perfect travel experience</p>
+        </div>
         <div className="category-grid">
           {categories.map((cat) => (
             <div
@@ -72,13 +78,19 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="popular-places">
-        <h2>Popular Destinations</h2>
+      <section className="popular-places scroll-animate">
+        <div className="section-header">
+          <h2>Popular Destinations</h2>
+          <p>Discover the most loved places by travelers</p>
+        </div>
         <div className="places-grid">
           {places.map((place) => (
             <PlaceCard key={place.id} place={place} />
           ))}
         </div>
+        <button className="view-all-btn" onClick={() => navigate('/explore')}>
+          View All Destinations
+        </button>
       </section>
     </div>
   );

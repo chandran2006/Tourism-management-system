@@ -65,3 +65,76 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, interests, currentPassword, newPassword, profileImage } = req.body;
+
+    const [users] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = users[0];
+    let updateFields = [];
+    let updateValues = [];
+
+    if (name) {
+      updateFields.push('name = ?');
+      updateValues.push(name);
+    }
+
+    if (email && email !== user.email) {
+      const [existing] = await db.query('SELECT * FROM users WHERE email = ? AND id != ?', [email, userId]);
+      if (existing.length > 0) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      updateFields.push('email = ?');
+      updateValues.push(email);
+    }
+
+    if (interests !== undefined) {
+      const interestsStr = Array.isArray(interests) ? interests.join(',') : interests;
+      updateFields.push('interests = ?');
+      updateValues.push(interestsStr);
+    }
+
+    if (profileImage !== undefined) {
+      updateFields.push('profileImage = ?');
+      updateValues.push(profileImage);
+    }
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password required' });
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      updateFields.push('password = ?');
+      updateValues.push(hashedPassword);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ message: 'No fields to update' });
+    }
+
+    updateValues.push(userId);
+    await db.query(
+      `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
+    );
+
+    const [updatedUser] = await db.query('SELECT id, name, email, interests, role, profileImage FROM users WHERE id = ?', [userId]);
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: updatedUser[0]
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

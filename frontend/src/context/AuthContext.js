@@ -35,12 +35,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, darkMode, toggleDarkMode }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, darkMode, toggleDarkMode }}>
       {children}
     </AuthContext.Provider>
   );

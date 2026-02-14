@@ -199,3 +199,39 @@
 .dark-mode .review-item {
   background: #2d3748;
 }
+
+.weather-info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.weather-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.weather-temp {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.weather-desc {
+  font-size: 1.2rem;
+  text-transform: capitalize;
+}
+
+.nearby-section {
+  margin: 40px 0;
+}
+
+.nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { placesAPI, reviewsAPI, favoritesAPI } from '../services/api';
+import { placesAPI, reviewsAPI, favoritesAPI, enhancedAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { FaStar, FaMapMarkerAlt, FaHeart } from 'react-icons/fa';
+import { useLanguage } from '../context/LanguageContext';
+import { FaStar, FaMapMarkerAlt, FaHeart, FaCloud } from 'react-icons/fa';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import PlaceCard from '../components/PlaceCard';
+import SmartTravelCompanion from '../components/SmartTravelCompanion';
 import './PlaceDetails.css';
 
 const PlaceDetails = () => {
@@ -11,7 +14,10 @@ const PlaceDetails = () => {
   const [place, setPlace] = useState(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [nearbyPlaces, setNearbyPlaces] = useState([]);
+  const [weather, setWeather] = useState(null);
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchPlace();
@@ -21,6 +27,20 @@ const PlaceDetails = () => {
     try {
       const response = await placesAPI.getById(id);
       setPlace(response.data);
+      
+      // Fetch nearby places
+      if (response.data.latitude && response.data.longitude) {
+        const nearbyResponse = await enhancedAPI.getNearby({
+          latitude: response.data.latitude,
+          longitude: response.data.longitude,
+          placeId: id
+        });
+        setNearbyPlaces(nearbyResponse.data);
+        
+        // Fetch weather
+        const weatherResponse = await enhancedAPI.getWeather(response.data.location.split(',')[0]);
+        setWeather(weatherResponse.data);
+      }
     } catch (error) {
       console.error('Error fetching place:', error);
     }
@@ -69,14 +89,25 @@ const PlaceDetails = () => {
 
       <div className="details-content">
         <section className="description">
-          <h2>About</h2>
+          <h2>{t('about')}</h2>
           <p>{place.description}</p>
           <span className="category-badge">{place.category}</span>
         </section>
 
+        {weather && (
+          <section className="weather-info">
+            <h2><FaCloud /> {t('weather')}</h2>
+            <div className="weather-card">
+              <div className="weather-temp">{weather.temp}°C</div>
+              <div className="weather-desc">{weather.description}</div>
+              <div className="weather-humidity">Humidity: {weather.humidity}%</div>
+            </div>
+          </section>
+        )}
+
         {place.latitude && place.longitude && (
           <section className="location-map">
-            <h2>Location</h2>
+            <h2>{t('location')}</h2>
             <MapContainer center={[place.latitude, place.longitude]} zoom={13} style={{ height: '400px' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={[place.latitude, place.longitude]} />
@@ -84,8 +115,21 @@ const PlaceDetails = () => {
           </section>
         )}
 
+        <SmartTravelCompanion place={place} />
+
+        {nearbyPlaces.length > 0 && (
+          <section className="nearby-section">
+            <h2>📍 {t('nearby')}</h2>
+            <div className="nearby-grid">
+              {nearbyPlaces.map(nearbyPlace => (
+                <PlaceCard key={nearbyPlace.id} place={nearbyPlace} />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="reviews">
-          <h2>Reviews</h2>
+          <h2>{t('reviews')}</h2>
           {user && (
             <form onSubmit={handleReviewSubmit} className="review-form">
               <select value={rating} onChange={(e) => setRating(e.target.value)}>
@@ -101,7 +145,7 @@ const PlaceDetails = () => {
                 onChange={(e) => setComment(e.target.value)}
                 required
               />
-              <button type="submit">Submit Review</button>
+              <button type="submit">{t('addReview')}</button>
             </form>
           )}
 

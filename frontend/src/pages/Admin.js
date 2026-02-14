@@ -14,7 +14,13 @@ const Admin = () => {
     location: '',
     imageUrl: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
+    bestTime: '',
+    visitDuration: '',
+    crowdLevel: 'Medium',
+    travelTips: '',
+    nearbyFood: '',
+    nextSuggestion: ''
   });
 
   useEffect(() => {
@@ -77,7 +83,13 @@ const Admin = () => {
       location: '',
       imageUrl: '',
       latitude: '',
-      longitude: ''
+      longitude: '',
+      bestTime: '',
+      visitDuration: '',
+      crowdLevel: 'Medium',
+      travelTips: '',
+      nearbyFood: '',
+      nextSuggestion: ''
     });
     setEditingId(null);
     setShowForm(false);
@@ -109,6 +121,19 @@ const Admin = () => {
           <input name="imageUrl" placeholder="Image URL" value={formData.imageUrl} onChange={handleChange} required />
           <input name="latitude" type="number" step="any" placeholder="Latitude" value={formData.latitude} onChange={handleChange} />
           <input name="longitude" type="number" step="any" placeholder="Longitude" value={formData.longitude} onChange={handleChange} />
+          
+          <h3 style={{marginTop: '20px'}}>Smart Travel Companion Info</h3>
+          <input name="bestTime" placeholder="Best Time to Visit" value={formData.bestTime} onChange={handleChange} />
+          <input name="visitDuration" placeholder="Visit Duration (e.g., 2-3 hours)" value={formData.visitDuration} onChange={handleChange} />
+          <select name="crowdLevel" value={formData.crowdLevel} onChange={handleChange}>
+            <option value="Low">Low Crowd</option>
+            <option value="Medium">Medium Crowd</option>
+            <option value="High">High Crowd</option>
+          </select>
+          <textarea name="travelTips" placeholder="Travel Tips" value={formData.travelTips} onChange={handleChange} />
+          <textarea name="nearbyFood" placeholder="Nearby Food & Rest Places" value={formData.nearbyFood} onChange={handleChange} />
+          <input name="nextSuggestion" type="number" placeholder="Next Suggestion Place ID" value={formData.nextSuggestion} onChange={handleChange} />
+          
           <div className="form-actions">
             <button type="submit">{editingId ? 'Update' : 'Create'}</button>
             <button type="button" onClick={resetForm}>Cancel</button>

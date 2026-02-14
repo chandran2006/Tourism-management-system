@@ -17,6 +17,7 @@ api.interceptors.request.use((config) => {
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  updateProfile: (data) => api.put('/auth/profile', data),
 };
 
 export const placesAPI = {
@@ -28,6 +29,7 @@ export const placesAPI = {
   update: (id, data) => api.put(`/places/${id}`, data),
   delete: (id) => api.delete(`/places/${id}`),
   generateItinerary: (data) => api.post('/places/itinerary', data),
+  generateTimeline: (data) => api.post('/places/timeline', data),
 };
 
 export const favoritesAPI = {
@@ -39,6 +41,30 @@ export const favoritesAPI = {
 export const reviewsAPI = {
   add: (data) => api.post('/reviews', data),
   getByPlace: (placeId) => api.get(`/reviews/${placeId}`),
+};
+
+export const adminAPI = {
+  registerAdmin: (data) => api.post('/admin/register', data),
+  getDashboard: () => api.get('/admin/dashboard'),
+  getUsers: (params) => api.get('/admin/users', { params }),
+  deleteUser: (id) => api.delete(`/admin/user/${id}`),
+  changeRole: (id, role) => api.put(`/admin/user/${id}/role`, { role }),
+  toggleStatus: (id, status) => api.put(`/admin/user/${id}/status`, { status }),
+  getAnalytics: () => api.get('/admin/analytics'),
+  getReviews: (params) => api.get('/admin/reviews', { params }),
+  deleteReview: (id) => api.delete(`/admin/review/${id}`),
+  getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
+  getTripPlans: (params) => api.get('/admin/trip-plans', { params }),
+};
+
+export const enhancedAPI = {
+  getTrending: () => api.get('/enhanced/trending'),
+  getNearby: (params) => api.get('/enhanced/nearby', { params }),
+  getWeather: (city) => api.get('/enhanced/weather', { params: { city } }),
+  calculateBudget: (data) => api.post('/enhanced/budget', data),
+  savePlan: (data) => api.post('/enhanced/plans', data),
+  getPlans: () => api.get('/enhanced/plans'),
+  deletePlan: (id) => api.delete(`/enhanced/plans/${id}`),
 };
 
 export default api;

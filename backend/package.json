@@ -1,7 +1,7 @@
 {
-  "name": "smart-tourist-guide-backend",
+  "name": "yatramate-backend",
   "version": "1.0.0",
-  "description": "Backend for Smart Tourist Guide System",
+  "description": "Backend for YatraMate - Smart Travel Guide System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

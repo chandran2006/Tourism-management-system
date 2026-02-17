@@ -39,7 +39,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
   
-  if (user.role !== 'admin') {
+  if (user.role !== 'admin' && user.role !== 'super_admin') {
     return <Navigate to="/" />;
   }
   
@@ -49,7 +49,7 @@ const AdminRoute = ({ children }) => {
 const UserRoute = ({ children }) => {
   const { user } = useAuth();
   
-  if (user && user.role === 'admin') {
+  if (user && (user.role === 'admin' || user.role === 'super_admin')) {
     return <Navigate to="/admin-dashboard" />;
   }
   

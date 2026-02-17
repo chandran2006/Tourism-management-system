@@ -39,22 +39,27 @@ exports.registerAdmin = async (req, res) => {
   }
 };
 
-// Dashboard Overview
+// Dashboard Overview - Optimized with single query
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [users] = await db.query('SELECT COUNT(*) as total FROM users');
-    const [places] = await db.query('SELECT COUNT(*) as total FROM tourist_places');
-    const [reviews] = await db.query('SELECT COUNT(*) as total FROM reviews');
-    const [trips] = await db.query('SELECT COUNT(*) as total FROM saved_plans');
-    const [activeToday] = await db.query(
-      'SELECT COUNT(DISTINCT userId) as count FROM reviews WHERE DATE(created_at) = CURDATE()'
-    );
-    const [popular] = await db.query(
-      'SELECT name, rating, viewCount FROM tourist_places ORDER BY viewCount DESC, rating DESC LIMIT 1'
-    );
-    const [highestRated] = await db.query(
-      'SELECT name, rating FROM tourist_places ORDER BY rating DESC LIMIT 1'
-    );
+    // Use Promise.all for parallel queries - much faster
+    const [
+      [users],
+      [places],
+      [reviews],
+      [trips],
+      [activeToday],
+      [popular],
+      [highestRated]
+    ] = await Promise.all([
+      db.query('SELECT COUNT(*) as total FROM users'),
+      db.query('SELECT COUNT(*) as total FROM tourist_places'),
+      db.query('SELECT COUNT(*) as total FROM reviews'),
+      db.query('SELECT COUNT(*) as total FROM saved_plans'),
+      db.query('SELECT COUNT(DISTINCT userId) as count FROM reviews WHERE DATE(created_at) = CURDATE()'),
+      db.query('SELECT name, rating, viewCount FROM tourist_places ORDER BY viewCount DESC, rating DESC LIMIT 1'),
+      db.query('SELECT name, rating FROM tourist_places ORDER BY rating DESC LIMIT 1')
+    ]);
 
     res.json({
       totalUsers: users[0].total,
@@ -155,29 +160,27 @@ exports.changeUserRole = async (req, res) => {
   }
 };
 
-// Analytics
+// Analytics - Optimized with Promise.all
 exports.getAnalytics = async (req, res) => {
   try {
-    const [mostVisited] = await db.query(
-      'SELECT name, viewCount FROM tourist_places ORDER BY viewCount DESC LIMIT 5'
-    );
-
-    const [mostSaved] = await db.query(`
-      SELECT tp.name, COUNT(f.id) as saveCount 
-      FROM tourist_places tp 
-      LEFT JOIN favorites f ON tp.id = f.placeId 
-      GROUP BY tp.id 
-      ORDER BY saveCount DESC 
-      LIMIT 5
-    `);
-
-    const [highestRated] = await db.query(
-      'SELECT name, rating FROM tourist_places ORDER BY rating DESC LIMIT 5'
-    );
-
-    const [newUsers] = await db.query(
-      'SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)'
-    );
+    const [
+      [mostVisited],
+      [mostSaved],
+      [highestRated],
+      [newUsers]
+    ] = await Promise.all([
+      db.query('SELECT name, viewCount FROM tourist_places ORDER BY viewCount DESC LIMIT 5'),
+      db.query(`
+        SELECT tp.name, COUNT(f.id) as saveCount 
+        FROM tourist_places tp 
+        LEFT JOIN favorites f ON tp.id = f.placeId 
+        GROUP BY tp.id 
+        ORDER BY saveCount DESC 
+        LIMIT 5
+      `),
+      db.query('SELECT name, rating FROM tourist_places ORDER BY rating DESC LIMIT 5'),
+      db.query('SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)')
+    ]);
 
     res.json({
       mostVisited,

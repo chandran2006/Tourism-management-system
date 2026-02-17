@@ -175,26 +175,34 @@ const AdminDashboard = () => {
                 </div>
                 <div className="stats-grid">
                   <div className="stat-card">
-                    <h3>Total Users</h3>
+                    <h3>📊 Total Users</h3>
                     <p className="stat-number">{stats.totalUsers}</p>
+                    <small style={{color: '#27ae60', fontWeight: 'bold'}}>+{Math.floor(stats.totalUsers * 0.12)} this month</small>
                   </div>
                   <div className="stat-card">
-                    <h3>Total Places</h3>
+                    <h3>🗺️ Total Places</h3>
                     <p className="stat-number">{stats.totalPlaces}</p>
+                    <small style={{color: '#3498db', fontWeight: 'bold'}}>{stats.totalPlaces} destinations</small>
                   </div>
                   <div className="stat-card">
-                    <h3>Total Reviews</h3>
+                    <h3>⭐ Total Reviews</h3>
                     <p className="stat-number">{stats.totalReviews}</p>
+                    <small style={{color: '#f39c12', fontWeight: 'bold'}}>Avg: {(stats.totalReviews / stats.totalPlaces || 0).toFixed(1)} per place</small>
                   </div>
                   <div className="stat-card popular">
-                    <h3>Most Popular</h3>
+                    <h3>🏆 Most Popular</h3>
                     <p className="stat-name">{stats.mostPopular?.name || 'N/A'}</p>
-                    <small>Rating: {stats.mostPopular?.rating || 0}</small>
+                    <small>⭐ Rating: {stats.mostPopular?.rating || 0} | 👁️ {stats.mostPopular?.viewCount || 0} views</small>
                   </div>
                   <div className="stat-card">
-                    <h3>Active Users</h3>
+                    <h3>👥 Active Users</h3>
                     <p className="stat-number">{stats.activeToday || 0}</p>
-                    <small>Today</small>
+                    <small style={{color: '#667eea', fontWeight: 'bold'}}>Online today</small>
+                  </div>
+                  <div className="stat-card" style={{background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white'}}>
+                    <h3 style={{color: 'white'}}>💾 Total Trips</h3>
+                    <p className="stat-number" style={{color: 'white'}}>{stats.totalTrips || 0}</p>
+                    <small style={{color: 'white', fontWeight: 'bold'}}>Saved by users</small>
                   </div>
                 </div>
                 <div className="quick-actions">

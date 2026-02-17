@@ -10,6 +10,11 @@ const placeRoutes = require('./routes/placeRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
+const hotelRoutes = require('./routes/hotelRoutes');
+const transportRoutes = require('./routes/transportRoutes');
+const tripPlannerRoutes = require('./routes/tripPlannerRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +39,13 @@ app.use('/api/places', placeRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Travel Super App Routes
+app.use('/api/chat', chatRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/hotels', hotelRoutes);
+app.use('/api/transport', transportRoutes);
+app.use('/api/trips', tripPlannerRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

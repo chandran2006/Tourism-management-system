@@ -17,10 +17,16 @@ const authMiddleware = (req, res, next) => {
 };
 
 const adminMiddleware = (req, res, next) => {
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
     return res.status(403).json({ message: 'Admin access required' });
   }
   next();
 };
 
-module.exports = { authMiddleware, adminMiddleware };
+// Export with both names for compatibility
+module.exports = { 
+  authMiddleware, 
+  adminMiddleware,
+  authenticate: authMiddleware,
+  requireAdmin: adminMiddleware
+};

@@ -4,12 +4,16 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
+import AIChatbot from './components/AIChatbot';
+import TransportCalculator from './components/TransportCalculator';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
 import PlaceDetails from './pages/PlaceDetails';
 import TravelPlanner from './pages/TravelPlanner';
 import TripTimeline from './pages/TripTimeline';
 import Favorites from './pages/Favorites';
+import Hotels from './pages/Hotels';
+import TripPlanner from './pages/TripPlanner';
 import Auth from './pages/Auth';
 import Admin from './pages/Admin';
 import AdminRegister from './pages/AdminRegister';
@@ -75,12 +79,16 @@ function App() {
                 <Route path="/*" element={
                   <>
                     <Navbar />
+                    <AIChatbot />
                     <Routes>
                       <Route path="/" element={<Home />} />
                       <Route path="/explore" element={<Explore />} />
                       <Route path="/place/:id" element={<PlaceDetails />} />
                       <Route path="/planner" element={<TravelPlanner />} />
                       <Route path="/timeline" element={<TripTimeline />} />
+                      <Route path="/hotels" element={<Hotels />} />
+                      <Route path="/transport" element={<TransportCalculator />} />
+                      <Route path="/trips" element={<ProtectedRoute><TripPlanner /></ProtectedRoute>} />
                       <Route path="/login" element={<Auth />} />
                       <Route path="/admin-register" element={<AdminRegister />} />
                       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

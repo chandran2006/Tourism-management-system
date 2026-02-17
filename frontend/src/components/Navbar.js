@@ -25,8 +25,10 @@ const Navbar = () => {
         <ul className="nav-menu">
           <li><Link to="/">{t('home')}</Link></li>
           <li><Link to="/explore">{t('explore')}</Link></li>
+          <li><Link to="/hotels">Hotels</Link></li>
+          <li><Link to="/transport">Transport</Link></li>
           <li><Link to="/planner">{t('planner')}</Link></li>
-          <li><Link to="/timeline">Timeline</Link></li>
+          <li><Link to="/trips">My Trips</Link></li>
           {user && <li><Link to="/favorites">{t('favorites')}</Link></li>}
           {user?.role === 'admin' && <li><Link to="/admin-dashboard">Dashboard</Link></li>}
         </ul>

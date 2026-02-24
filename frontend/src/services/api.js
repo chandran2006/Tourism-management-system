@@ -1,45 +1,88 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// Use Vite proxy in development, full URL in production
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Simple cache for GET requests
 const cache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 50; // Prevent memory leaks
 
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000, // 10 second timeout
+  withCredentials: false, // Set to true if using cookies
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  
-  // Check cache for GET requests
-  if (config.method === 'get') {
-    const cacheKey = config.url + JSON.stringify(config.params);
-    const cached = cache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-      config.adapter = () => Promise.resolve(cached.data);
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Check cache for GET requests
+    if (config.method === 'get') {
+      const cacheKey = config.url + JSON.stringify(config.params);
+      const cached = cache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        config.adapter = () => Promise.resolve(cached.data);
+      }
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  
-  return config;
-});
+);
 
-// Cache successful GET responses
-api.interceptors.response.use((response) => {
-  if (response.config.method === 'get') {
-    const cacheKey = response.config.url + JSON.stringify(response.config.params);
-    cache.set(cacheKey, {
-      data: response,
-      timestamp: Date.now()
-    });
+// Response interceptor
+api.interceptors.response.use(
+  (response) => {
+    // Cache successful GET responses
+    if (response.config.method === 'get') {
+      const cacheKey = response.config.url + JSON.stringify(response.config.params);
+      
+      // Limit cache size
+      if (cache.size >= MAX_CACHE_SIZE) {
+        const firstKey = cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+      
+      cache.set(cacheKey, {
+        data: response,
+        timestamp: Date.now()
+      });
+    }
+    return response;
+  },
+  (error) => {
+    // Handle specific error cases
+    if (error.response) {
+      // Token expired or invalid
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Redirect to login if not already there
+        if (window.location.pathname !== '/auth') {
+          window.location.href = '/auth';
+        }
+      }
+      // Rate limit exceeded
+      if (error.response.status === 429) {
+        console.error('Rate limit exceeded. Please try again later.');
+      }
+    }
+    return Promise.reject(error);
   }
-  return response;
-});
+);
+
+// Clear cache function
+export const clearCache = () => {
+  cache.clear();
+};
 
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),

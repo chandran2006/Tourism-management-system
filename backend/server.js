@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { createTables } = require('./config/initDb');
@@ -20,22 +22,53 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
-    methods: ['GET', 'POST']
+    origin: process.env.NODE_ENV === 'production' 
+      ? process.env.FRONTEND_URL 
+      : ['http://localhost:3000', 'http://localhost:5173'],
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
 // Make io accessible to routes
 app.set('io', io);
 
-// Middleware - Optimized
-app.use(cors());
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
+// Stricter rate limit for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Too many login attempts, please try again later.'
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+
+// CORS
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
+    : ['http://localhost:3000', 'http://localhost:5173'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Compression for faster responses (install with: npm install compression)
-// const compression = require('compression');
-// app.use(compression());
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -43,8 +76,6 @@ app.use('/api/places', placeRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
-
-// Travel Super App Routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/hotels', hotelRoutes);
@@ -56,25 +87,33 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Get active users (for admin)
-app.get('/api/admin/active-users', (req, res) => {
-  // This will be handled by adminRoutes
-  res.json({ message: 'Use /api/admin/users endpoint' });
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(err.status || 500).json({ 
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message 
+  });
 });
 
 // Socket.io connection
 io.on('connection', (socket) => {
-  console.log('✅ Admin connected:', socket.id);
+  console.log('✅ Client connected:', socket.id);
   
   socket.on('disconnect', () => {
-    console.log('❌ Admin disconnected:', socket.id);
+    console.log('❌ Client disconnected:', socket.id);
   });
 });
 
 // Initialize database and start server
 const PORT = process.env.PORT || 5000;
 
-// Optimized: Remove delay, initialize immediately
 createTables().then(() => {
   server.listen(PORT, () => {
     console.log(`\n✅ Server running on http://localhost:${PORT}`);

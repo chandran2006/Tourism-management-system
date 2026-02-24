@@ -6,6 +6,8 @@ import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,6 +32,9 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    
     try {
       const response = isLogin
         ? await authAPI.login({ email: formData.email, password: formData.password })
@@ -43,8 +48,10 @@ const Auth = () => {
       } else {
         navigate('/');
       }
-    } catch (error) {
-      alert(error.response?.data?.message || 'Authentication failed');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,6 +60,8 @@ const Auth = () => {
       <div className="auth-container">
         <h1>{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
         <p>{isLogin ? 'Login to continue your journey' : 'Start your travel adventure'}</p>
+
+        {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
@@ -100,8 +109,8 @@ const Auth = () => {
             </div>
           )}
 
-          <button type="submit" className="submit-btn">
-            {isLogin ? 'Login' : 'Register'}
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>
 

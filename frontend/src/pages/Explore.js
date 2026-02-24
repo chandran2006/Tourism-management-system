@@ -26,21 +26,30 @@ const Explore = () => {
   const [viewMode, setViewMode] = useState('grid');
   const { user } = useAuth();
 
+  // Optimized: Debounced search and memoized fetch
   useEffect(() => {
-    fetchPlaces();
-    if (user) fetchFavorites();
+    const timer = setTimeout(() => {
+      fetchPlaces();
+    }, 300); // Debounce search by 300ms
+    
+    return () => clearTimeout(timer);
   }, [category, location, search]);
+
+  useEffect(() => {
+    if (user) fetchFavorites();
+  }, [user]);
 
   const fetchPlaces = async () => {
     try {
-      const params = {};
+      const params = { limit: 100 }; // Add limit for performance
       if (category) params.category = category;
       if (location) params.location = location;
       if (search) params.search = search;
       const response = await placesAPI.getAll(params);
-      setPlaces(response.data);
+      setPlaces(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching places:', error);
+      setPlaces([]);
     }
   };
 

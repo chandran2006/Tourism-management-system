@@ -1,8 +1,9 @@
 const db = require('../config/database');
 
+// Optimized: Added LIMIT for better performance
 exports.getAllPlaces = async (req, res) => {
   try {
-    const { category, location, search } = req.query;
+    const { category, location, search, limit = 100 } = req.query;
     let query = 'SELECT * FROM tourist_places WHERE 1=1';
     const params = [];
 
@@ -21,7 +22,8 @@ exports.getAllPlaces = async (req, res) => {
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ' ORDER BY rating DESC';
+    query += ' ORDER BY rating DESC LIMIT ?';
+    params.push(parseInt(limit));
 
     const [places] = await db.query(query, params);
     res.json(places);
@@ -30,22 +32,31 @@ exports.getAllPlaces = async (req, res) => {
   }
 };
 
+// Optimized: Parallel query execution for place details
 exports.getPlaceById = async (req, res) => {
   try {
-    const [places] = await db.query('SELECT * FROM tourist_places WHERE id = ?', [req.params.id]);
+    const placeId = req.params.id;
+    
+    // Execute all queries in parallel
+    const [[places], [reviews]] = await Promise.all([
+      db.query('SELECT * FROM tourist_places WHERE id = ?', [placeId]),
+      db.query(
+        'SELECT r.*, u.name as userName FROM reviews r JOIN users u ON r.userId = u.id WHERE r.placeId = ? ORDER BY r.created_at DESC LIMIT 20',
+        [placeId]
+      )
+    ]);
+
     if (places.length === 0) {
       return res.status(404).json({ message: 'Place not found' });
     }
 
-    const [reviews] = await db.query(
-      'SELECT r.*, u.name as userName FROM reviews r JOIN users u ON r.userId = u.id WHERE r.placeId = ? ORDER BY r.created_at DESC',
-      [req.params.id]
-    );
-
-    // Get suggested next destination
+    // Get suggested next destination if exists
     let nextPlace = null;
     if (places[0].nextSuggestion) {
-      const [next] = await db.query('SELECT id, name, imageUrl, category, location FROM tourist_places WHERE id = ?', [places[0].nextSuggestion]);
+      const [next] = await db.query(
+        'SELECT id, name, imageUrl, category, location FROM tourist_places WHERE id = ?', 
+        [places[0].nextSuggestion]
+      );
       nextPlace = next[0] || null;
     }
 

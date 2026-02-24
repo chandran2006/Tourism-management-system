@@ -2,8 +2,13 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
 
+// Simple cache for GET requests
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 10000, // 10 second timeout
 });
 
 api.interceptors.request.use((config) => {
@@ -11,7 +16,29 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Check cache for GET requests
+  if (config.method === 'get') {
+    const cacheKey = config.url + JSON.stringify(config.params);
+    const cached = cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      config.adapter = () => Promise.resolve(cached.data);
+    }
+  }
+  
   return config;
+});
+
+// Cache successful GET responses
+api.interceptors.response.use((response) => {
+  if (response.config.method === 'get') {
+    const cacheKey = response.config.url + JSON.stringify(response.config.params);
+    cache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now()
+    });
+  }
+  return response;
 });
 
 export const authAPI = {

@@ -33,9 +33,9 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Compression for faster responses
-const compression = require('compression');
-app.use(compression());
+// Compression for faster responses (install with: npm install compression)
+// const compression = require('compression');
+// app.use(compression());
 
 // Routes
 app.use('/api/auth', authRoutes);

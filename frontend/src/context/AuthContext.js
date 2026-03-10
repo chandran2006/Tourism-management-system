@@ -8,12 +8,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -45,8 +49,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateUser, darkMode, toggleDarkMode }}>
-      {children}
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, darkMode, toggleDarkMode, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +16,7 @@ const Auth = () => {
   });
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const interests = ['Nature', 'Temple', 'Beach', 'Food', 'Adventure', 'Heritage'];
 
@@ -30,6 +33,9 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    
     try {
       const response = isLogin
         ? await authAPI.login({ email: formData.email, password: formData.password })
@@ -37,14 +43,17 @@ const Auth = () => {
       
       login(response.data.user, response.data.token);
       
-      // Redirect based on user role
+      // Redirect to previous page or default based on role
+      const from = location.state?.from || '/';
       if (response.data.user.role === 'admin' || response.data.user.role === 'super_admin') {
         navigate('/admin-dashboard');
       } else {
-        navigate('/');
+        navigate(from, { replace: true });
       }
-    } catch (error) {
-      alert(error.response?.data?.message || 'Authentication failed');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,6 +62,8 @@ const Auth = () => {
       <div className="auth-container">
         <h1>{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
         <p>{isLogin ? 'Login to continue your journey' : 'Start your travel adventure'}</p>
+
+        {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
@@ -100,8 +111,8 @@ const Auth = () => {
             </div>
           )}
 
-          <button type="submit" className="submit-btn">
-            {isLogin ? 'Login' : 'Register'}
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
 import AIChatbot from './components/AIChatbot';
@@ -23,20 +24,28 @@ import NotFound from './pages/NotFound';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: window.location.pathname }} replace />;
   }
   
   return children;
 };
 
 const AdminRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: window.location.pathname }} replace />;
   }
   
   if (user.role !== 'admin' && user.role !== 'super_admin') {
@@ -60,47 +69,49 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <LanguageProvider>
-          <Router>
-            <div className="App">
-              <Routes>
-                {/* Admin Routes - No Navbar */}
-                <Route path="/admin-dashboard" element={
-                  <AdminRoute><AdminDashboard /></AdminRoute>
-                } />
-                <Route path="/admin" element={
-                  <AdminRoute><Admin /></AdminRoute>
-                } />
-                <Route path="/admin/profile" element={
-                  <AdminRoute><Profile /></AdminRoute>
-                } />
-                
-                {/* User Routes - With Navbar */}
-                <Route path="/*" element={
-                  <>
-                    <Navbar />
-                    <AIChatbot />
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/explore" element={<Explore />} />
-                      <Route path="/place/:id" element={<PlaceDetails />} />
-                      <Route path="/planner" element={<TravelPlanner />} />
-                      <Route path="/timeline" element={<TripTimeline />} />
-                      <Route path="/hotels" element={<Hotels />} />
-                      <Route path="/transport" element={<TransportCalculator />} />
-                      <Route path="/trips" element={<ProtectedRoute><TripPlanner /></ProtectedRoute>} />
-                      <Route path="/login" element={<Auth />} />
-                      <Route path="/admin-register" element={<AdminRegister />} />
-                      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                      <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </>
-                } />
-              </Routes>
-            </div>
-          </Router>
-        </LanguageProvider>
+        <FavoritesProvider>
+          <LanguageProvider>
+            <Router>
+              <div className="App">
+                <Routes>
+                  {/* Admin Routes - No Navbar */}
+                  <Route path="/admin-dashboard" element={
+                    <AdminRoute><AdminDashboard /></AdminRoute>
+                  } />
+                  <Route path="/admin" element={
+                    <AdminRoute><Admin /></AdminRoute>
+                  } />
+                  <Route path="/admin/profile" element={
+                    <AdminRoute><Profile /></AdminRoute>
+                  } />
+                  
+                  {/* User Routes - With Navbar */}
+                  <Route path="/*" element={
+                    <>
+                      <Navbar />
+                      <AIChatbot />
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/explore" element={<Explore />} />
+                        <Route path="/place/:id" element={<PlaceDetails />} />
+                        <Route path="/planner" element={<TravelPlanner />} />
+                        <Route path="/timeline" element={<TripTimeline />} />
+                        <Route path="/hotels" element={<Hotels />} />
+                        <Route path="/transport" element={<TransportCalculator />} />
+                        <Route path="/trips" element={<ProtectedRoute><TripPlanner /></ProtectedRoute>} />
+                        <Route path="/login" element={<Auth />} />
+                        <Route path="/admin-register" element={<AdminRegister />} />
+                        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                        <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </>
+                  } />
+                </Routes>
+              </div>
+            </Router>
+          </LanguageProvider>
+        </FavoritesProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

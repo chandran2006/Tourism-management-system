@@ -1,6 +1,11 @@
 const db = require('../config/database');
 
-// Optimized: Added LIMIT for better performance
+// Input validation helper
+const validateLimit = (limit) => {
+  const parsed = parseInt(limit);
+  return isNaN(parsed) || parsed < 1 ? 100 : Math.min(parsed, 500);
+};
+
 exports.getAllPlaces = async (req, res) => {
   try {
     const { category, location, search, limit = 100 } = req.query;
@@ -23,19 +28,23 @@ exports.getAllPlaces = async (req, res) => {
     }
 
     query += ' ORDER BY rating DESC LIMIT ?';
-    params.push(parseInt(limit));
+    params.push(validateLimit(limit));
 
     const [places] = await db.query(query, params);
     res.json(places);
   } catch (error) {
+    console.error('Get all places error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Optimized: Parallel query execution for place details
 exports.getPlaceById = async (req, res) => {
   try {
-    const placeId = req.params.id;
+    const placeId = parseInt(req.params.id);
+    
+    if (isNaN(placeId)) {
+      return res.status(400).json({ message: 'Invalid place ID' });
+    }
     
     // Execute all queries in parallel
     const [[places], [reviews]] = await Promise.all([
@@ -62,18 +71,27 @@ exports.getPlaceById = async (req, res) => {
 
     res.json({ ...places[0], reviews, nextPlace });
   } catch (error) {
+    console.error('Get place by ID error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
 exports.getPlacesByCategory = async (req, res) => {
   try {
+    const validCategories = ['Nature', 'Temple', 'Beach', 'Food', 'Adventure', 'Heritage'];
+    const category = req.params.category;
+    
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ message: 'Invalid category' });
+    }
+
     const [places] = await db.query(
       'SELECT * FROM tourist_places WHERE category = ? ORDER BY rating DESC',
-      [req.params.category]
+      [category]
     );
     res.json(places);
   } catch (error) {
+    console.error('Get places by category error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -88,7 +106,12 @@ exports.getRecommendations = async (req, res) => {
       return res.json(places);
     }
 
-    const interests = users[0].interests.split(',');
+    const interests = users[0].interests.split(',').filter(i => i.trim());
+    if (interests.length === 0) {
+      const [places] = await db.query('SELECT * FROM tourist_places ORDER BY rating DESC LIMIT 10');
+      return res.json(places);
+    }
+
     const placeholders = interests.map(() => '?').join(',');
     const [places] = await db.query(
       `SELECT * FROM tourist_places WHERE category IN (${placeholders}) ORDER BY rating DESC LIMIT 10`,
@@ -97,6 +120,7 @@ exports.getRecommendations = async (req, res) => {
 
     res.json(places);
   } catch (error) {
+    console.error('Get recommendations error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -105,37 +129,68 @@ exports.createPlace = async (req, res) => {
   try {
     const { name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion } = req.body;
 
+    // Input validation
+    if (!name || !description || !category || !location) {
+      return res.status(400).json({ message: 'Required fields: name, description, category, location' });
+    }
+
     const [result] = await db.query(
       'INSERT INTO tourist_places (name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion]
+      [name, description, category, location, imageUrl || null, latitude || null, longitude || null, bestTime || null, visitDuration || null, crowdLevel || null, travelTips || null, nearbyFood || null, nextSuggestion || null]
     );
 
     res.status(201).json({ message: 'Place created successfully', id: result.insertId });
   } catch (error) {
+    console.error('Create place error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
 exports.updatePlace = async (req, res) => {
   try {
+    const placeId = parseInt(req.params.id);
+    
+    if (isNaN(placeId)) {
+      return res.status(400).json({ message: 'Invalid place ID' });
+    }
+
     const { name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion } = req.body;
+
+    // Check if place exists
+    const [existing] = await db.query('SELECT id FROM tourist_places WHERE id = ?', [placeId]);
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'Place not found' });
+    }
 
     await db.query(
       'UPDATE tourist_places SET name = ?, description = ?, category = ?, location = ?, imageUrl = ?, latitude = ?, longitude = ?, bestTime = ?, visitDuration = ?, crowdLevel = ?, travelTips = ?, nearbyFood = ?, nextSuggestion = ? WHERE id = ?',
-      [name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion, req.params.id]
+      [name, description, category, location, imageUrl, latitude, longitude, bestTime, visitDuration, crowdLevel, travelTips, nearbyFood, nextSuggestion, placeId]
     );
 
     res.json({ message: 'Place updated successfully' });
   } catch (error) {
+    console.error('Update place error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
 exports.deletePlace = async (req, res) => {
   try {
-    await db.query('DELETE FROM tourist_places WHERE id = ?', [req.params.id]);
+    const placeId = parseInt(req.params.id);
+    
+    if (isNaN(placeId)) {
+      return res.status(400).json({ message: 'Invalid place ID' });
+    }
+
+    const [result] = await db.query('DELETE FROM tourist_places WHERE id = ?', [placeId]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Place not found' });
+    }
+
     res.json({ message: 'Place deleted successfully' });
   } catch (error) {
+    console.error('Delete place error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -144,13 +199,26 @@ exports.generateItinerary = async (req, res) => {
   try {
     const { city, duration } = req.body;
     
+    if (!city || !duration) {
+      return res.status(400).json({ message: 'City and duration are required' });
+    }
+
+    const durationNum = parseInt(duration);
+    if (isNaN(durationNum) || durationNum < 1 || durationNum > 30) {
+      return res.status(400).json({ message: 'Duration must be between 1 and 30 days' });
+    }
+    
     const [places] = await db.query(
       'SELECT * FROM tourist_places WHERE location LIKE ? ORDER BY rating DESC LIMIT ?',
-      [`%${city}%`, duration * 3]
+      [`%${city}%`, durationNum * 3]
     );
 
+    if (places.length === 0) {
+      return res.status(404).json({ message: 'No places found for this city' });
+    }
+
     const itinerary = [];
-    for (let day = 1; day <= duration; day++) {
+    for (let day = 1; day <= durationNum; day++) {
       const dayPlaces = places.slice((day - 1) * 3, day * 3);
       itinerary.push({
         day,
@@ -159,8 +227,9 @@ exports.generateItinerary = async (req, res) => {
       });
     }
 
-    res.json({ city, duration, itinerary });
+    res.json({ city, duration: durationNum, itinerary });
   } catch (error) {
+    console.error('Generate itinerary error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -169,21 +238,30 @@ exports.generateTimeline = async (req, res) => {
   try {
     const { city, duration } = req.body;
     
+    if (!city || !duration) {
+      return res.status(400).json({ message: 'City and duration are required' });
+    }
+
+    const durationNum = parseInt(duration);
+    if (isNaN(durationNum) || durationNum < 1 || durationNum > 30) {
+      return res.status(400).json({ message: 'Duration must be between 1 and 30 days' });
+    }
+    
     const [places] = await db.query(
       'SELECT * FROM tourist_places WHERE location LIKE ? ORDER BY rating DESC LIMIT ?',
-      [`%${city}%`, parseInt(duration) * 4]
+      [`%${city}%`, durationNum * 4]
     );
 
     if (places.length === 0) {
-      return res.json({ city, duration, timeline: [] });
+      return res.json({ city, duration: durationNum, timeline: [] });
     }
 
     const timeline = [];
-    const timeSlots = duration === '1' 
+    const timeSlots = durationNum === 1 
       ? ['09:00 AM', '12:00 PM', '03:00 PM', '06:00 PM']
       : ['09:00 AM', '11:30 AM', '02:00 PM', '05:00 PM', '09:00 AM', '12:00 PM', '03:00 PM', '06:00 PM'];
     
-    const dayLabels = duration === '1' ? ['Day 1'] : ['Day 1', 'Day 1', 'Day 1', 'Day 1', 'Day 2', 'Day 2', 'Day 2', 'Day 2'];
+    const dayLabels = durationNum === 1 ? ['Day 1'] : ['Day 1', 'Day 1', 'Day 1', 'Day 1', 'Day 2', 'Day 2', 'Day 2', 'Day 2'];
 
     places.forEach((place, index) => {
       if (index < timeSlots.length) {
@@ -203,8 +281,9 @@ exports.generateTimeline = async (req, res) => {
       }
     });
 
-    res.json({ city, duration, timeline });
+    res.json({ city, duration: durationNum, timeline });
   } catch (error) {
+    console.error('Generate timeline error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

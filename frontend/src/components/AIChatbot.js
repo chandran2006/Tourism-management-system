@@ -9,21 +9,21 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
   // Quick action prompts
   const quickActions = [
-    'Suggest places to visit',
-    'Recommend hotels',
-    'Plan my itinerary',
-    'Estimate budget',
-    'Transport options'
+    '🏖️ Best beaches in India',
+    '🏔️ Mountain destinations',
+    '🍛 Food tours',
+    '💰 Budget trip ideas',
+    '🎒 Adventure activities'
   ];
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Load chat history
-      loadChatHistory();
+      // Add welcome message with suggestions
+      addBotMessage('Hello! 👋 I\'m your AI travel assistant. I can help you with:\n\n🗺️ Destination recommendations\n🏨 Hotel suggestions\n📅 Itinerary planning\n💰 Budget estimation\n🚗 Transport options\n\nWhat would you like to know?');
     }
   }, [isOpen]);
 

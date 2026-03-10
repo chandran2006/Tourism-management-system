@@ -1,33 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { favoritesAPI } from '../services/api';
+import React, { useEffect } from 'react';
+import { useFavorites } from '../context/FavoritesContext';
 import PlaceCard from '../components/PlaceCard';
 import { FaHeart } from 'react-icons/fa';
 import './Favorites.css';
 
 const Favorites = () => {
-  const [favorites, setFavorites] = useState([]);
+  const { favorites, favoriteIds, fetchFavorites, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     fetchFavorites();
   }, []);
-
-  const fetchFavorites = async () => {
-    try {
-      const response = await favoritesAPI.getAll();
-      setFavorites(response.data);
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
-    }
-  };
-
-  const handleRemoveFavorite = async (placeId) => {
-    try {
-      await favoritesAPI.remove(placeId);
-      setFavorites(favorites.filter(f => f.id !== placeId));
-    } catch (error) {
-      console.error('Error removing favorite:', error);
-    }
-  };
 
   return (
     <div className="favorites">
@@ -48,7 +30,7 @@ const Favorites = () => {
             <PlaceCard
               key={place.id}
               place={place}
-              onFavorite={handleRemoveFavorite}
+              onFavorite={toggleFavorite}
               isFavorite={true}
             />
           ))}

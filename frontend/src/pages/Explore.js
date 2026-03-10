@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { placesAPI, favoritesAPI } from '../services/api';
+import { placesAPI } from '../services/api';
+import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import PlaceCard from '../components/PlaceCard';
 import { FaFilter, FaMap, FaList } from 'react-icons/fa';
@@ -19,7 +20,8 @@ L.Icon.Default.mergeOptions({
 const Explore = () => {
   const [searchParams] = useSearchParams();
   const [places, setPlaces] = useState([]);
-  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { favoriteIds, fetchFavorites, toggleFavorite } = useFavorites();
   const [category, setCategory] = useState(searchParams.get('category') || '');
   const [location, setLocation] = useState('');
   const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -40,8 +42,9 @@ const Explore = () => {
   }, [user]);
 
   const fetchPlaces = async () => {
+    setLoading(true);
     try {
-      const params = { limit: 100 }; // Add limit for performance
+      const params = { limit: 100 };
       if (category) params.category = category;
       if (location) params.location = location;
       if (search) params.search = search;
@@ -50,28 +53,15 @@ const Explore = () => {
     } catch (error) {
       console.error('Error fetching places:', error);
       setPlaces([]);
-    }
-  };
-
-  const fetchFavorites = async () => {
-    try {
-      const response = await favoritesAPI.getAll();
-      setFavorites(response.data.map(f => f.id));
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFavorite = async (placeId) => {
     if (!user) return alert('Please login to add favorites');
     try {
-      if (favorites.includes(placeId)) {
-        await favoritesAPI.remove(placeId);
-        setFavorites(favorites.filter(id => id !== placeId));
-      } else {
-        await favoritesAPI.add(placeId);
-        setFavorites([...favorites, placeId]);
-      }
+      await toggleFavorite(placeId);
     } catch (error) {
       console.error('Error updating favorite:', error);
     }
@@ -116,16 +106,22 @@ const Explore = () => {
       </div>
 
       {viewMode === 'grid' ? (
-        <div className="places-grid">
-          {places.map((place) => (
-            <PlaceCard
-              key={place.id}
-              place={place}
-              onFavorite={handleFavorite}
-              isFavorite={favorites.includes(place.id)}
-            />
-          ))}
-        </div>
+        loading ? (
+          <div className="loading-state">Loading places...</div>
+        ) : places.length === 0 ? (
+          <div className="empty-state">No places found. Try adjusting your filters.</div>
+        ) : (
+          <div className="places-grid">
+            {places.map((place) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onFavorite={handleFavorite}
+                isFavorite={favoriteIds.includes(place.id)}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="map-view">
           <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '600px', width: '100%' }}>

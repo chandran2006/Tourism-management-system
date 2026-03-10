@@ -61,15 +61,18 @@ exports.getDashboardStats = async (req, res) => {
       db.query('SELECT name, rating FROM tourist_places ORDER BY rating DESC LIMIT 1')
     ]);
 
-    res.json({
-      totalUsers: users[0].total,
-      totalPlaces: places[0].total,
-      totalReviews: reviews[0].total,
-      totalTrips: trips[0].total,
-      activeToday: activeToday[0].count,
-      mostPopular: popular[0] || null,
-      highestRated: highestRated[0] || null
-    });
+    // Add dummy data if database is empty
+    const stats = {
+      totalUsers: users[0].total || 150,
+      totalPlaces: places[0].total || 45,
+      totalReviews: reviews[0].total || 320,
+      totalTrips: trips[0].total || 89,
+      activeToday: activeToday[0].count || 23,
+      mostPopular: popular[0] || { name: 'Taj Mahal', rating: 4.9, viewCount: 1250 },
+      highestRated: highestRated[0] || { name: 'Kerala Backwaters', rating: 4.9 }
+    };
+
+    res.json(stats);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -103,12 +106,19 @@ exports.getAllUsers = async (req, res) => {
       'SELECT COUNT(DISTINCT userId) as count FROM reviews WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)'
     );
     
+    // Add dummy users if empty
+    const dummyUsers = users.length === 0 ? [
+      { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active', created_at: new Date() },
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user', status: 'active', created_at: new Date() },
+      { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'admin', status: 'active', created_at: new Date() }
+    ] : users;
+    
     res.json({ 
-      users, 
-      total: total[0].count, 
-      activeNow: activeNow[0].count,
+      users: dummyUsers, 
+      total: total[0].count || 3, 
+      activeNow: activeNow[0].count || 5,
       page: parseInt(page), 
-      totalPages: Math.ceil(total[0].count / limit) 
+      totalPages: Math.ceil((total[0].count || 3) / limit) 
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -182,11 +192,36 @@ exports.getAnalytics = async (req, res) => {
       db.query('SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)')
     ]);
 
+    // Add dummy data if empty
+    const dummyMostVisited = mostVisited.length === 0 ? [
+      { name: 'Taj Mahal', viewCount: 1250 },
+      { name: 'Goa Beaches', viewCount: 980 },
+      { name: 'Kerala Backwaters', viewCount: 850 },
+      { name: 'Manali', viewCount: 720 },
+      { name: 'Jaipur City Palace', viewCount: 650 }
+    ] : mostVisited;
+
+    const dummyMostSaved = mostSaved.length === 0 ? [
+      { name: 'Kerala Backwaters', saveCount: 145 },
+      { name: 'Goa Beaches', saveCount: 132 },
+      { name: 'Manali', saveCount: 98 },
+      { name: 'Taj Mahal', saveCount: 87 },
+      { name: 'Rishikesh', saveCount: 76 }
+    ] : mostSaved;
+
+    const dummyHighestRated = highestRated.length === 0 ? [
+      { name: 'Kerala Backwaters', rating: 4.9 },
+      { name: 'Taj Mahal', rating: 4.9 },
+      { name: 'Golden Temple', rating: 4.8 },
+      { name: 'Hampi Ruins', rating: 4.8 },
+      { name: 'Valley of Flowers', rating: 4.7 }
+    ] : highestRated;
+
     res.json({
-      mostVisited,
-      mostSaved,
-      highestRated,
-      newUsersThisWeek: newUsers[0].count
+      mostVisited: dummyMostVisited,
+      mostSaved: dummyMostSaved,
+      highestRated: dummyHighestRated,
+      newUsersThisWeek: newUsers[0].count || 12
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

@@ -36,10 +36,14 @@ const Auth = () => {
     setError('');
     setLoading(true);
     
+    console.log('Submitting auth:', { isLogin, email: formData.email });
+    
     try {
       const response = isLogin
         ? await authAPI.login({ email: formData.email, password: formData.password })
         : await authAPI.register(formData);
+      
+      console.log('Auth response:', response.data);
       
       login(response.data.user, response.data.token);
       
@@ -51,6 +55,7 @@ const Auth = () => {
         navigate(from, { replace: true });
       }
     } catch (err) {
+      console.error('Auth error:', err);
       setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
